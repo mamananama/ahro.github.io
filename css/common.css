@@ -1,0 +1,185 @@
+@font-face {
+    font-family: 'Pretendard-Regular';
+    src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+}
+
+/* initialize body, h1, h2, h3, p margine, padding */
+body,
+h1,
+h2,
+h3,
+h4,
+p,
+button,
+ul,
+ol,
+li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+    border: none;
+    padding: 8px;
+    font-family: inherit;
+    font-size: 1em;
+}
+
+textarea {
+    padding: 8px;
+    resize: none;
+    border: none;
+    font-family: inherit;
+    font-size: 1em;
+}
+
+/* ---------- RESET ---------- */
+
+.view {
+    width: 1000px;
+    margin: auto;
+}
+
+body {
+    font-family: 'Pretendard-Regular', sans-serif;
+}
+
+.main-title {
+    font-size: 24px;
+}
+
+.main-desc {
+    color: #767676;
+    margin: 10px 0 32px
+}
+
+.flex-field {
+    display: flex;
+    flex-direction: row;
+}
+
+.btn {
+    border: none;
+    border-radius: 8px;
+    background-color: #ddd;
+    font-size: 12px;
+    font-family: inherit;
+}
+
+/* text-align */
+.tal {
+    text-align: left;
+}
+
+.tac {
+    text-align: center;
+}
+
+.tar {
+    text-align: right;
+}
+
+
+/* CSS 변수 */
+:root {
+    --graycolor: #ddd;
+}
+
+.dark {
+    --bgcolor: black;
+    --texcolor: white;
+}
+
+.light {
+    --bgcolor: white;
+    --texcolor: black;
+}
+
+/* CSS 변수 사용 예
+p{
+    color: var(--graycolor);    
+}
+*/
+
+
+/* layout */
+.layout-header {
+    border-bottom: 2px solid #ccc;
+    padding: 20px;
+    height: 80px;
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.layout-header div {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+}
+
+.layout-header div * {
+    text-decoration: none;
+    font: inherit;
+    color: inherit;
+    background-color: none;
+    border: 0;
+}
+
+.layout-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #eee;
+    height: 60px;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    gap: 60px;
+}
+
+main {
+    flex-grow: 1;
+}
+
+
+
+/* table */
+
+table {
+    /* 테이블의 선 중복 확인 */
+    border-collapse: collapse;
+    width: 100%;
+    border-top: 2px solid black;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+}
+
+th {
+    background-color: #eee;
+}
+
+table td {
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+table th,
+table td {
+    padding: 8px;
+}
