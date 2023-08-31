@@ -237,7 +237,7 @@ textarea {
     width: 90%;
     margin: 10px;
     padding: 10px;
-    height: 100px;
+    min-height: 100px;
 
     box-sizing: border-box;
     flex-shrink: 0;
