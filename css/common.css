@@ -28,8 +28,9 @@ a{
 
 input[type="text"],
 input[type="password"],
-input[type="email"] {
+input[type="email"], input[type="datetime-local"]{
     border: none;
+    box-sizing: border-box;
     padding: 8px;
     font-family: inherit;
     font-size: 1em;
@@ -47,6 +48,8 @@ textarea:focus,
 input:focus {
     outline: none;
 }
+
+
 
 /* ---------- RESET ---------- */
 
