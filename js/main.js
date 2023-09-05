@@ -225,14 +225,21 @@ function createContent(key, json) {
 	$editMenu.id = "edit-menu-content";
 	const $delete = document.createElement("div");
 	const $edit = document.createElement("div");
-	$delete.classList.add("menu-icon-content", "delete-content");
-	$edit.classList.add("menu-icon-content", "edit-content");
+	$delete.classList.add("menu-icon-content", "delete-content", "delete");
+	$delete.id = "delete";
+	$edit.classList.add("menu-icon-content", "edit-content", "edit", "open-form");
+	$edit.id = "edit";
 
-	const $key = document.createElement("span");
-	$key.innerText = key;
-	$key.id = "key";
-	$key.style.display = "none";
-	$delete.appendChild($key);
+	const $editKey = document.createElement("span");
+	const $deleteKey = document.createElement("span");
+	$editKey.innerText = key;
+	$deleteKey.innerText = key;
+	$editKey.id = "key";
+	$deleteKey.id = "key";
+	$editKey.style.display = "none";
+	$deleteKey.style.display = "none";
+	$edit.appendChild($editKey);
+	$delete.appendChild($deleteKey);
 
 	$content.appendChild($title);
 	$content.appendChild($start);
@@ -252,16 +259,16 @@ function createContent(key, json) {
 }
 
 function createList() {
-	const $contentsArea = document.getElementsByClassName("contents-area").item(0);
+	const $contentsArea = document.getElementsByClassName("contents-list-event-container").item(0);
 	$contentsArea.removeChild(document.getElementsByClassName("contents-list").item(0));
 	const $contentsList = document.createElement("div");
 	$contentsArea.appendChild($contentsList);
 	$contentsList.classList.add("contents-list", "list");
 
-	for (key in storage) {
-		if (key.toString().match("json") != null) {
-			const jsonText = storage[key];
-			createContent(key, jsonText);
+	for (jsonkey in storage) {
+		if (jsonkey.toString().match("json") != null) {
+			const jsonText = storage[jsonkey];
+			createContent(jsonkey, jsonText);
 		}
 	}
 }
@@ -351,7 +358,7 @@ const processJsonPost = async () => {
 			console.log(res);
 			let json = res.choices[0].message.content;
 			console.log(json);
-			saveScheduleInStorage(json);
+			saveScheduleInStorage("", json);
 			createList();
 		})
 		.catch((err) => {
@@ -497,77 +504,175 @@ $inputForm.addEventListener("submit", (e) => {
 // ====================================================
 // 일정 수동 조작 부분
 
-// 각 일정 수정 메뉴 visible toggle 버튼
-let editMenuClosed = true;
-const $editMenu = document.querySelector(".edit-menu");
-$editMenu.addEventListener("click", () => {
-	const $editMenuContents = document.querySelectorAll("#edit-menu-content");
-	console.log($editMenuContents);
-	editMenuClosed = openMenu($editMenuContents, editMenuClosed);
+let key; // 일정 수동 조작시 수정/삭제 조작을 위해 필요한 storage key 값
+let editMenuClosed = true; // 일정 수정 메뉴를 위한 toggle
+
+// 할 일 목록 메뉴 영역 이벤트 지정
+const $contentsAreaMenuArea = document.querySelector(".contents-area").querySelector(".menu-area");
+$contentsAreaMenuArea.addEventListener("click", (e) => {
+	const $targetElement = e.target;
+
+	$targetElement.classList.forEach((className) => {
+		// 일정 생성 popup form 열기
+		if (className == "open-form") {
+			openPopup(key);
+		}
+		// 각 일정 수정 메뉴 visible toggle
+		else if (className == "edit-menu") {
+			const $editMenuContents = document.querySelectorAll("#edit-menu-content");
+			console.log($editMenuContents);
+			editMenuClosed = openMenu($editMenuContents, editMenuClosed);
+		}
+	});
 });
 
-// 일정 생성 form popup
-const $createMenu = document.querySelector(".create-menu");
-$createMenu.addEventListener("click", () => {
-	const $createFormContainer = document.getElementById("popup-container");
-	$createFormContainer.style.visibility = "visible";
-	$createFormContainer.style.justifyContent = "center";
-	$createFormContainer.style.alignItems = "center";
+function openPopup(key) {
+	const $popupContents = document
+		.getElementById("popup-container")
+		.getElementsByClassName("contents-container")
+		.item(0);
+
+	if (!key) {
+		document.getElementById("popup-title").innerHTML = "일정을 추가합니다.";
+	} else {
+		document.getElementById("popup-title").innerHTML = "일정을 수정합니다.";
+
+		console.log($popupContents);
+		// local storage에 저장된 값을 불러와 popup form에 채워넣기 시작
+		const json = JSON.parse(storage.getItem(key));
+
+		let title = json["title"];
+		let start = jsonTimeParser(json["start"]);
+		let end = jsonTimeParser(json["end"]);
+		let note = json["note"];
+
+		const $title = document.getElementById("title");
+		const $start = document.getElementById("start");
+		const $end = document.getElementById("end");
+		const $note = document.getElementById("note");
+
+		console.log($start);
+		$title.value = title;
+		$start.value = start;
+		$end.value = end;
+		$note.value = note;
+		// 끝
+	}
+
+	const $popupEventContainer = document.getElementById("popup-event-container");
+	$popupEventContainer.style.display = "block";
+	const $popupContainer = document.getElementById("popup-container");
+	$popupContainer.style.display = "flex";
+	$popupContainer.style.justifyContent = "center";
+	$popupContainer.style.alignItems = "center";
+
+	$popupContents.style.display = "flex";
+}
+function closePopup(eventTarget) {
+	document.getElementById("popup-event-container").style.display = "none";
+	document.getElementById("popup-container").style.display = "none";
+	document.getElementById("popup-container").children.item(0).style.display = "none";
+}
+// 일정 수정/삭제
+const $editMenuContent = document.querySelector(".contents-list-event-container");
+$editMenuContent.addEventListener("click", (e) => {
+	let targetElement;
+	if (e.target.id == "edit" || e.target.id == "delete") {
+		targetElement = e.target;
+	}
+	key = targetElement.children.item(0).innerHTML;
+	console.log("키: " + key);
+
+	if (targetElement.id == "edit") {
+		openPopup(key);
+	} else if (targetElement.id == "delete") {
+		storage.removeItem(key);
+		createList();
+	}
+	key = null;
 });
 
-// popup 닫힘 버튼
-const $closeMenu = document.querySelector(".close-button");
-$closeMenu.addEventListener("click", (e) => {
-	console.log("여기 눌림: " + e);
-	document.querySelector(".popup-container").style.visibility = "hidden";
+// popup에서 일어나는 event 제어
+const $popupEventContainer = document.getElementById("popup-event-container");
+$popupEventContainer.addEventListener("click", (e) => {
+	console.log(e.target.className);
+
+	if (e.target.className == "close-button") {
+		// 팝업 창 닫기
+		closePopup();
+	} else if (e.target.id == "popup-submit") {
+		console.log("들어옴");
+		submitPopupFormData(key);
+	}
 });
 
-// 일정 아이템 생성
-const $createMenuConfirm = document.querySelector(".form-confirm");
-$createMenuConfirm.addEventListener("click", (e) => {
-	const title = document.getElementById("title").value;
-	console.log(title);
-	const start = datetimeParser(document.getElementById("start").value);
-	console.log(start);
-	const end = datetimeParser(document.getElementById("end").value);
-	console.log(end);
-	const note = document.getElementById("note").value;
-	console.log(note);
+function submitPopupFormData(key) {
+	const $title = document.getElementById("title").value;
+	const $start = datetimeParser(document.getElementById("start").value);
+	const $end = datetimeParser(document.getElementById("end").value);
+	const $note = document.getElementById("note").value;
 
-	const scheduleJson = makeScheduleJSON(title, start, end, note);
-	saveScheduleInStorage(scheduleJson);
+	const scheduleJson = makeScheduleJSON($title, $start, $end, $note);
+
+	console.log("키: " + key);
+
+	if (!key) {
+		console.log("여기?");
+		saveScheduleInStorage("", scheduleJson);
+	} else {
+		console.log("여기!");
+		saveScheduleInStorage(key, scheduleJson);
+	}
 	createList();
 
 	document.getElementById("title").value = "";
 	document.getElementById("start").value = "";
 	document.getElementById("end").value = "";
 	document.getElementById("note").value = "";
-});
+}
 
-// 일정 아이템 삭제
+// 일정 아이템 생성
+const $createMenuConfirm = document.querySelector(".form-confirm");
+// $createMenuConfirm.addEventListener("click", (e) => {});
+
+// 일정 아이템 삭제 수정
 const $contentsList = document.querySelector(".contents-view");
 $contentsList.addEventListener("click", (e) => {
-	const $editMenuContents = document.querySelectorAll("#edit-menu-content");
+	let mode;
+	// const key = e.target.children.item(0).innerHTML;
+	e.target.classList.forEach((className) => {
+		console.log("클래스 명: " + className);
+		if (className == "edit-content") {
+			mode = 1;
+		} else if (className == "delete-content") {
+			mode = 0;
+		}
+	});
 
-	console.log(e.target);
-
-	const key = e.target.children.item(0).innerText;
-	if (key.match("json_")) {
-		console.log(key);
+	if (mode == 1) {
+		// 기존에 저장된 값 불러오기
+		// const scheduleJson = makeScheduleJSON($title.value, $start.value, $end.value, $note.value);
+		// saveScheduleInStorage(key, scheduleJson);
+		// createList();
+		// $title.value = "";
+		// $start.value = "";
+		// $end.value = "";
+		// $note.value = "";
+	} else if (mode == 0) {
+		console.log(mode);
 		storage.removeItem(key);
 		createList();
+		const $editMenuContents = document.querySelectorAll("#edit-menu-content");
 		openMenu($editMenuContents, true);
 	}
 });
 
 function openMenu($menu, menuClosed) {
-	console.log("오픈");
 	if (menuClosed) {
 		Array.prototype.forEach.call($menu, (content) => {
 			content.style.display = "flex";
 		});
 		menuClosed = !menuClosed;
-		console.log(menuClosed);
 		return menuClosed;
 	} else {
 		Array.prototype.forEach.call($menu, (content) => {
@@ -589,6 +694,17 @@ function datetimeParser(dateTime) {
 	return parsed;
 }
 
+function jsonTimeParser(jsonTime) {
+	// jsonTime 형식: 2023-09-13 12:33:00
+	let parsed = "";
+	if (jsonTime) {
+		const jsonTimeArr = jsonTime.split(" ");
+		const time = jsonTimeArr[1].slice(0, 5);
+		parsed = jsonTimeArr[0] + "T" + time;
+	}
+	return parsed;
+}
+
 function makeScheduleJSON(title, start, end, note) {
 	let scheduleJson = {
 		title: title,
@@ -600,7 +716,10 @@ function makeScheduleJSON(title, start, end, note) {
 	return JSON.stringify(scheduleJson);
 }
 
-function saveScheduleInStorage(json) {
-	const key = "json_" + Date.now();
+function saveScheduleInStorage(_key, json) {
+	let key = "json_" + Date.now();
+	if (_key) {
+		key = _key;
+	}
 	storage.setItem(key, json);
 }
