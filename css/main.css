@@ -42,6 +42,7 @@ main{
 
 .feature-view{
     width: 400px;
+    height: 100%;
     box-sizing: border-box;
     padding: 10px;
     flex-shrink: 0;
@@ -55,8 +56,6 @@ main{
 
     display: flex;
     flex-direction: column;
-    
-    overflow-y: auto;
 }
 
 .menu-area{
@@ -81,7 +80,8 @@ main{
 
     flex-grow: 3;
     flex-basis: 0;
-
+    position:relative;
+    
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -118,17 +118,69 @@ main{
     background-repeat: no-repeat;
 }
 
-
-
 .feature-message{
     width: 100%;
     height: 200px;
     flex-grow: 1;
-    border-radius: 16px;
-    
-    background-color: white;
+}
 
+#chat-log-view{
+    display: none;
+    width: 95%;
+    height: 100%;
+    
+    position: absolute;
+    z-index: 999;
+    
+    box-sizing: border-box;
+    border-radius: 16px;
+    padding: 10px;
+
+
+    justify-content: center;
+    align-items: center;
+}
+
+#chat-log-view .inner-wrap{
+    width: 100%;
+    height: 100%;
+    padding: 20px 15px;
+
+    border-radius: 16px;
+    box-sizing: border-box;
+    background-color: #ffffffad;
+
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+    position: relative;
     overflow-y: auto;
+}
+
+#user-chat, #assistant-chat{
+    width: 100%;
+    display: flex;
+}
+
+.chat-message{
+    background-color: #0350b6;
+    color:#fff;
+
+    min-height: 30px;
+    min-width: 100px;
+    border-radius: 15px 0 15px 15px;
+    padding: 6px 12px;
+
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;    
+}
+
+#user-chat .chat-message{
+    background-color: #abd9f3;
+    border-radius: 0 15px 15px 15px;
+    color: #111;
 }
 
 .input-area{
@@ -168,6 +220,10 @@ main{
 
 .menu-icon label{
     display: none;
+}
+
+.chat-log{
+    background-image: url("../img/icon/chatlog.png");
 }
 
 .create-menu{
@@ -230,7 +286,6 @@ textarea {
     padding: 10px;    
     box-sizing: border-box;
     
-
     flex-grow: 1;
 }
 
@@ -243,6 +298,7 @@ textarea {
 
     overflow: hidden;
 
+    position: relative;
     display: flex;
     flex-direction: row;
     border-radius: 16px;
@@ -335,6 +391,7 @@ textarea {
 #popup-event-container{
     display: none;
     position: absolute;
+    box-sizing: border-box;
     width: 100%;
     height: 100%;
 }
@@ -350,21 +407,22 @@ textarea {
 .popup-container{
     display: none;
     flex-direction: column;
-    position: absolute;
-
-    top: 0;
-    left: 0;
+    position: relative;
+    box-sizing: border-box;
     width: 100%;
     height: 100%;
 }
 
-.popup-container .contents-container, .popup-container .edit-container{
+.popup-container .contents-container{
+    box-sizing: border-box;
     position: absolute;
     display: none;
     flex-direction: column;
     justify-content: start;
     align-items: center;
     
+
+    box-sizing: border-box;
     padding: 30px 60px;
     border-radius: 15px;
     width: 600px;
@@ -498,4 +556,30 @@ input[type='datetime-local']{
     background-image: url("../img/icon/edit.png");
     background-size: cover;
     background-repeat: no-repeat;
+}
+
+
+
+
+/* scroll bar effect */
+
+/* ===== Scrollbar CSS ===== */
+/* Firefox */
+* {
+    scrollbar-width: auto;
+    scrollbar-color: #69696988 transparent;
+}
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+    width: 6px;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: #69696988;
+    border-radius: 3px;    
 }

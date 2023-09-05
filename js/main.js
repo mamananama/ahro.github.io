@@ -64,6 +64,12 @@ function setToday() {
 	return stringToday;
 }
 
+// preprocessQueryData
+/*
+	user의 질문을 가장 먼저 받아보는 GPT.
+	user의 질문은 분석하여 !일반, !생성, !삭제, !수정, !탐색의 5개 키워드 중 하나를 user의 질문 가장 앞부분에 header로써 붙인다.
+	모든 user의 대화는 망각한다.
+*/
 let preprocessQueryData = [
 	{
 		role: "system",
@@ -75,20 +81,24 @@ let preprocessQueryData = [
 	},
 	{
 		role: "system",
-		content:
-			"assistant의 대답 양식은 {키워드}+{user의 질문}으로만 답하며, {키워드} 부분에 들어갈 수 있는 값은 '!일반', '!생성', '!수정', '!삭제', '!탐색' 총 5가지 뿐이다. {user의 질문} 부분에는 전달된 user의 질문 텍스트를 그대로 넣어서 답한다. 즉, user의 질문 텍스트가 '너는 누구야?'인 경우, assistant는 규칙에 따라 '!일반 너는 누구야?'로 대답해야한다.",
+		content: "assistant의 대답의 규칙을 반드시 따라서 대답해야한다.",
+	},
+	{
+		role: "system",
+		content: `assistant의 대답의 규칙은 "<키워드> <user의 질문>"이다. <user의 질문> 부분엔 user로부터 받은 문자열을 그대로 넣는다. <키워드> 부분에 들어갈 수 있는 값은 '!일반', '!생성', '!수정', '!삭제', '!탐색' 총 5가지 뿐이다.\n예시를 들어 설명하면, user의 질문 문자열이 "너는 누구야?"인 경우, assistant는 규칙에 따라 "!일반 너는 누구야?"로 대답해야한다.\n또 다른 예시는, user가 "오늘 오후 3시에 조깅하는 일정을 추가해줘" 문자열을 전달하면, assistant는 "!생성 오늘 오후 3시에 조깅하는 일정을 추가해줘"로 대답해야한다.`,
 	},
 	{
 		role: "system",
 		content:
 			"assistant는 user의 대화를 분석하여, user의 대화가 '새로운 일정을 생성'하는 요청인 경우 '!생성' 키워드를, user의 대화가 일정을 '수정' 또는 '변경'하는 하는 요청인 경우 '!수정' 키워드를, user의 대화가 일정을 '삭제' 또는 '취소'하는 요청인 경우 '!삭제' 키워드를, user의 대화가 저장된 일정을 탐색하라는 요청인 경우 '!탐색' 키워드를, 그리고 이외 일정과 관련없는 일반적인 대화는 '!일반' 키워드를 사용한다.",
 	},
-	{
-		role: "system",
-		content: "assistant는 해당 규칙을 모든 대화에서 따라야한다.",
-	},
 ];
 
+//  answeringGPT
+/*
+	실질적으로 user에게 feedback 대답을 하는 GPT.
+	user의 질문에 응답하고, 각 GPT에서 얻은 결과를 user에게 전달한다.
+*/
 let answeringGPT = [
 	{
 		role: "system",
@@ -100,17 +110,28 @@ let answeringGPT = [
 	},
 	{
 		role: "system",
-		content: "assistant는 user의 질문에 단순한 대답만 한다.",
+		content:
+			"user의 대화가 '!생성'키워드로 시작하는 경우, assistant는 user의 일정 질문 내용을 통해 일정을 생성했다는 대답을 return한다.",
 	},
 	{
 		role: "system",
 		content:
-			"assistant는 user의 대화의 '!일반', '!생성', '!수정', '!삭제', '!탐색' 키워드를 보고 적절한 대답을 한다.",
+			"user의 대화가 '!수정'키워드로 시작하는 경우, assistant는 user의 일정 질문 내용을 통해 일정을 수정했다는 대답을 return한다.",
 	},
 	{
 		role: "system",
 		content:
-			"user의 대화가 '!생성'키워드로 시작하는 경우, assistant는 user의 일정 질문 내용을 통해 일정을 생성했다는 말을 return하면 된다.",
+			"user의 대화가 '!삭제'키워드로 시작하는 경우, assistant는 user의 일정을 삭제했다는 대답을 return한다.",
+	},
+	{
+		role: "system",
+		content:
+			"user의 대화가 '!일반'키워드로 시작하는 경우, assistant는 user의 질문에 대해서 일반적인 대답을 return한다.",
+	},
+	{
+		role: "system",
+		content:
+			"user의 대화가 '!탐색'키워드로 시작하는 경우, assistant는 user에게 기억하고 있는 일정에 대해 알려준다.",
 	},
 ];
 
@@ -126,6 +147,8 @@ let answeringGPT = [
 		note : ""
 	}
 	의 json object 형태로 return 하도록 유도
+
+	모든 user의 대화는 망각한다.
 */
 let processJsonQueryData = [
 	{
@@ -203,7 +226,6 @@ function returnMessage(text) {
 }
 
 function createContent(key, json) {
-	console.log(json);
 	const parseJason = JSON.parse(json);
 	const title = parseJason.title;
 	const start = parseJason.start;
@@ -403,7 +425,9 @@ async function localStoragePost(keyword, message) {
 								JSON.stringify(json) +
 								" 이다. 이후, user로부터 일정 요청을 assistant가 받으면 이 일정을 수정하여 return한다.",
 						});
-
+						message =
+							message +
+							" system이 알려준 json data에 값을 넣어서 assistant는 json data 양식만 return해.";
 						sendQuestion(processJsonQueryData, message);
 						processJsonPost();
 						processJsonQueryData.pop();
@@ -495,10 +519,28 @@ const messagePost = async () => {
 $inputForm.addEventListener("submit", (e) => {
 	e.preventDefault();
 	$chat.value = null;
-	question = question + " beam_width:0 temperature:0";
+	questionData.push(question);
 	sendQuestion(preprocessQueryData, question);
 	messagePost();
-	// printQuestion();
+	printQuestion(question, true);
+});
+
+// ====================================================
+// chat-log 조작부분
+
+let chatLogOpened = false; // chat-log toggle용
+const $chatLog = document.querySelector("#chat-log");
+$chatLog.addEventListener("click", (e) => {
+	const $chatLogView = document.querySelector("#chat-log-view");
+	if (!chatLogOpened) {
+		$chatLogView.style.display = "flex";
+		chatLogOpened = !chatLogOpened;
+		console.log(chatLogOpened);
+	} else {
+		console.log($chatLogView);
+		$chatLogView.style.display = "none";
+		chatLogOpened = !chatLogOpened;
+	}
 });
 
 // ====================================================
@@ -520,7 +562,6 @@ $contentsAreaMenuArea.addEventListener("click", (e) => {
 		// 각 일정 수정 메뉴 visible toggle
 		else if (className == "edit-menu") {
 			const $editMenuContents = document.querySelectorAll("#edit-menu-content");
-			console.log($editMenuContents);
 			editMenuClosed = openMenu($editMenuContents, editMenuClosed);
 		}
 	});
@@ -537,7 +578,6 @@ function openPopup(key) {
 	} else {
 		document.getElementById("popup-title").innerHTML = "일정을 수정합니다.";
 
-		console.log($popupContents);
 		// local storage에 저장된 값을 불러와 popup form에 채워넣기 시작
 		const json = JSON.parse(storage.getItem(key));
 
@@ -551,7 +591,6 @@ function openPopup(key) {
 		const $end = document.getElementById("end");
 		const $note = document.getElementById("note");
 
-		console.log($start);
 		$title.value = title;
 		$start.value = start;
 		$end.value = end;
@@ -560,7 +599,7 @@ function openPopup(key) {
 	}
 
 	const $popupEventContainer = document.getElementById("popup-event-container");
-	$popupEventContainer.style.display = "block";
+	$popupEventContainer.style.display = "flex";
 	const $popupContainer = document.getElementById("popup-container");
 	$popupContainer.style.display = "flex";
 	$popupContainer.style.justifyContent = "center";
@@ -572,36 +611,39 @@ function closePopup(eventTarget) {
 	document.getElementById("popup-event-container").style.display = "none";
 	document.getElementById("popup-container").style.display = "none";
 	document.getElementById("popup-container").children.item(0).style.display = "none";
+
+	document.getElementById("title").value = "";
+	document.getElementById("start").value = "";
+	document.getElementById("end").value = "";
+	document.getElementById("note").value = "";
+	key = null;
 }
+
 // 일정 수정/삭제
 const $editMenuContent = document.querySelector(".contents-list-event-container");
 $editMenuContent.addEventListener("click", (e) => {
 	let targetElement;
 	if (e.target.id == "edit" || e.target.id == "delete") {
 		targetElement = e.target;
-	}
-	key = targetElement.children.item(0).innerHTML;
-	console.log("키: " + key);
+		key = targetElement.children.item(0).innerHTML;
 
-	if (targetElement.id == "edit") {
-		openPopup(key);
-	} else if (targetElement.id == "delete") {
-		storage.removeItem(key);
-		createList();
+		if (targetElement.id == "edit") {
+			openPopup(key);
+		} else if (targetElement.id == "delete") {
+			storage.removeItem(key);
+			createList();
+			key = null;
+		}
 	}
-	key = null;
 });
 
 // popup에서 일어나는 event 제어
 const $popupEventContainer = document.getElementById("popup-event-container");
 $popupEventContainer.addEventListener("click", (e) => {
-	console.log(e.target.className);
-
 	if (e.target.className == "close-button") {
 		// 팝업 창 닫기
 		closePopup();
 	} else if (e.target.id == "popup-submit") {
-		console.log("들어옴");
 		submitPopupFormData(key);
 	}
 });
@@ -614,13 +656,9 @@ function submitPopupFormData(key) {
 
 	const scheduleJson = makeScheduleJSON($title, $start, $end, $note);
 
-	console.log("키: " + key);
-
 	if (!key) {
-		console.log("여기?");
 		saveScheduleInStorage("", scheduleJson);
 	} else {
-		console.log("여기!");
 		saveScheduleInStorage(key, scheduleJson);
 	}
 	createList();
@@ -630,42 +668,6 @@ function submitPopupFormData(key) {
 	document.getElementById("end").value = "";
 	document.getElementById("note").value = "";
 }
-
-// 일정 아이템 생성
-const $createMenuConfirm = document.querySelector(".form-confirm");
-// $createMenuConfirm.addEventListener("click", (e) => {});
-
-// 일정 아이템 삭제 수정
-const $contentsList = document.querySelector(".contents-view");
-$contentsList.addEventListener("click", (e) => {
-	let mode;
-	// const key = e.target.children.item(0).innerHTML;
-	e.target.classList.forEach((className) => {
-		console.log("클래스 명: " + className);
-		if (className == "edit-content") {
-			mode = 1;
-		} else if (className == "delete-content") {
-			mode = 0;
-		}
-	});
-
-	if (mode == 1) {
-		// 기존에 저장된 값 불러오기
-		// const scheduleJson = makeScheduleJSON($title.value, $start.value, $end.value, $note.value);
-		// saveScheduleInStorage(key, scheduleJson);
-		// createList();
-		// $title.value = "";
-		// $start.value = "";
-		// $end.value = "";
-		// $note.value = "";
-	} else if (mode == 0) {
-		console.log(mode);
-		storage.removeItem(key);
-		createList();
-		const $editMenuContents = document.querySelectorAll("#edit-menu-content");
-		openMenu($editMenuContents, true);
-	}
-});
 
 function openMenu($menu, menuClosed) {
 	if (menuClosed) {
@@ -679,7 +681,6 @@ function openMenu($menu, menuClosed) {
 			content.style.display = "none";
 		});
 		menuClosed = !menuClosed;
-		console.log(menuClosed);
 		return menuClosed;
 	}
 }
@@ -717,9 +718,28 @@ function makeScheduleJSON(title, start, end, note) {
 }
 
 function saveScheduleInStorage(_key, json) {
-	let key = "json_" + Date.now();
+	let key;
 	if (_key) {
 		key = _key;
+	} else {
+		key = "json_" + Date.now();
 	}
 	storage.setItem(key, json);
+	key = null;
+}
+
+function printQuestion(question, user) {
+	const $chatLogView = document.querySelector("#chat-log-view");
+
+	const $chat = document.createElement("div");
+	const $chatMessage = document.createElement("div");
+	if (user) {
+		$chat.id = "user-chat";
+	} else {
+		$chat.id = "assistant-chat";
+	}
+	$chatMessage.classList.add("chat-message", "transparent-bg");
+	$chatMessage.innerHTML = question;
+	$chat.appendChild($chatMessage);
+	$chatLogView.children.item(0).appendChild($chat);
 }
