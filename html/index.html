@@ -43,52 +43,102 @@
 						<div class="contents-area area">
 							<h2>할 일 목록</h2>
 							<div class="menu-area">
-								<div class="transparent-bg menu-icon create-menu"><label>일정 생성</label></div>
+								<div class="transparent-bg menu-icon create-menu open-form">
+									<label>일정 생성</label>
+								</div>
 								<div class="transparent-bg menu-icon edit-menu">
 									<label>일정 수정 및 삭제</label>
 								</div>
 							</div>
-							<div class="contents-list list">
-								<!-- 여기에 일정이 추가됩니다. -->
-								<!-- <div class="content transparent-bg">
-									<h3>일정 테스트</h3>
-									<span class="time">시작 시간: 2023-09-05 17:28:00</span>
-									<span class="time">종료 시간:</span>
-									<p>일정의 테스트입니다</p>
-									<div class="edit-menu-content">
-										<div class="menu-icon-content delete-content"></div>
-										<div class="menu-icon-content edit-content"></div>
-									</div>
-								</div> -->
+							<div class="contents-list-event-container">
+								<div class="contents-list list">
+									<!-- 여기에 일정이 추가됩니다. -->
+									<!-- <div class="content transparent-bg">
+										<h3>일정 테스트</h3>
+										<span class="time">시작 시간: 2023-09-05 17:28:00</span>
+										<span class="time">종료 시간:</span>
+										<p>일정의 테스트입니다</p>
+										<div id="edit-menu-content">
+											<div class="menu-icon-content delete-content"></div>
+											<div class="menu-icon-content edit-content"></div>
+										</div>
+									</div> -->
+								</div>
 							</div>
 						</div>
-						<div class="popup-container" id="popup-container">
-							<div class="contents-container">
-								<div class="menu-area popup-menu">
-									<h3>일정을 추가합니다.</h3>
-									<div class="close-button"><label>닫힘 버튼</label></div>
-								</div>
-								<form class="create-form" method="post">
-									<div class="form-wrap">
-										<div class="create-form-input">
-											<label for="title">일정 제목</label>
-											<input id="title" class="transparent-bg" type="text" />
-										</div>
-										<div class="create-form-input">
-											<label for="start">시작 시간</label>
-											<input id="start" class="transparent-bg" type="datetime-local" />
-										</div>
-										<div class="create-form-input">
-											<label for="end">종료 시간</label>
-											<input id="end" class="transparent-bg" type="datetime-local" />
-										</div>
-										<div class="create-form-textarea">
-											<label for="note">노트</label>
-											<textarea class="transparent-bg" id="note"></textarea>
-										</div>
+						<div id="popup-event-container">
+							<div class="popup-container" id="popup-container">
+								<div class="transparent-bg contents-container">
+									<div class="menu-area popup-menu">
+										<h3 id="popup-title">일정을 추가합니다.</h3>
+										<div class="close-button"><label>닫힘 버튼</label></div>
 									</div>
-									<div><button type="button" class="form-confirm">확인</button></div>
-								</form>
+									<form class="create-form" method="post">
+										<div class="form-wrap">
+											<div class="create-form-input">
+												<label for="title">일정 제목</label>
+												<input id="title" class="input-inset-shadow title-field" type="text" />
+											</div>
+											<div class="create-form-input">
+												<label for="start">시작 시간</label>
+												<input
+													id="start"
+													class="input-inset-shadow start-field"
+													type="datetime-local" />
+											</div>
+											<div class="create-form-input">
+												<label for="end">종료 시간</label>
+												<input
+													id="end"
+													class="input-inset-shadow end-field"
+													type="datetime-local" />
+											</div>
+											<div class="create-form-textarea">
+												<label for="note">노트</label>
+												<textarea class="input-inset-shadow note-field" id="note"></textarea>
+											</div>
+										</div>
+										<div class="popup-button-area">
+											<button type="button" class="btn" id="popup-submit">확인</button>
+										</div>
+									</form>
+								</div>
+
+								<!-- <div class="transparent-bg contents-container" id="edit-mode">
+									<div class="menu-area popup-menu">
+										<h3>일정을 수정합니다.</h3>
+										<div class="close-button"><label>닫힘 버튼</label></div>
+									</div>
+									<form class="create-form" method="post">
+										<div class="form-wrap">
+											<div class="create-form-input">
+												<label for="title">일정 제목</label>
+												<input id="title" class="input-inset-shadow title-field" type="text" />
+											</div>
+											<div class="create-form-input">
+												<label for="start">시작 시간</label>
+												<input
+													id="start"
+													class="input-inset-shadow start-field"
+													type="datetime-local" />
+											</div>
+											<div class="create-form-input">
+												<label for="end">종료 시간</label>
+												<input
+													id="end"
+													class="input-inset-shadow end-field"
+													type="datetime-local" />
+											</div>
+											<div class="create-form-textarea">
+												<label for="note">노트</label>
+												<textarea class="input-inset-shadow note-field" id="note"></textarea>
+											</div>
+										</div>
+										<div class="popup-button-area">
+											<button type="button" class="form-confirm btn">확인</button>
+										</div>
+									</form>
+								</div> -->
 							</div>
 						</div>
 					</div>

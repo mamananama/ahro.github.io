@@ -162,6 +162,8 @@ main{
     border-radius: 50%;
     background-size: cover;
     background-repeat: no-repeat;
+
+    border: 4px solid #6666;
 }
 
 .menu-icon label{
@@ -170,15 +172,11 @@ main{
 
 .create-menu{
     background-image: url("../img/icon/create.png");
-
-    border: 4px solid #217ffa
+    
 }
 
-.edit-menu {
-    background-image: url("../img/icon/deletepng.png");
-
-    background-size: cover;
-    border: 4px solid #fa2821
+.edit-menu{
+    background-image: url("../img/icon/editanddelete.png");
 }
 
 .close-button{
@@ -266,6 +264,12 @@ textarea {
     height: auto;
 }
 
+.contents-list-event-container{
+    height: 100%;
+    width: 100%;
+    display: block;
+}
+
 .contents-area{
     flex-grow: 2;
     flex-basis: 0;
@@ -328,52 +332,100 @@ textarea {
     height: 150px;
 } */
 
+#popup-event-container{
+    display: none;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+#create-mode{
+    display: none;
+}
+
+#edit-mode{
+    display: none;
+}
 
 .popup-container{
-    display: flex;
+    display: none;
     flex-direction: column;
-    position: absolute;
-    visibility: hidden;
     position: absolute;
 
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-
-    transition: all 0.2s;
 }
 
-.popup-container .contents-container{
+.popup-container .contents-container, .popup-container .edit-container{
     position: absolute;
-    display: flex;
+    display: none;
     flex-direction: column;
-    justify-content: center;
+    justify-content: start;
     align-items: center;
     
     padding: 30px 60px;
     border-radius: 15px;
     width: 600px;
     height: 500px;
-    background-color: #ffffff71;
+    background-color: #ffffff;
     backdrop-filter: blur(15px);
+
+    -webkit-box-shadow: 0px 39px 71px -19px rgba(0, 0, 0, 0.59);
+        -moz-box-shadow: 0px 39px 71px -19px rgba(0, 0, 0, 0.59);
+        box-shadow: 0px 39px 71px -19px rgba(0, 0, 0, 0.59);
 }
 
 .popup-menu{
     padding: 0;
+    flex-grow: 1;
+    flex-basis: 0;
+    flex-shrink: 0;
+}
+
+.popup-button-area{
+    height: 40px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: flex-end;
+}
+
+#popup-submit{
+    width: 100px;
+    font-size: 1em;
+
+    box-shadow: inset 0px -3px 3px 4px rgba(0, 0, 0, 0.1), inset 0px 3px 3px 4px rgba(255, 255, 255, 0.4), 0px 3px 5px 3px rgba(0, 0, 0, 0.1);
+
+    transition: background-color 0.3s;
+    /* transition: box-shadow 0.3s; */
+}
+
+#popup-submit:hover{
+    background-color: #217ffa;
+    color: #fff;
+}
+
+#popup-submit:active{
+    background-color: #0350b6;
+    color: #fff;
 }
 
 .create-form{
     width: 100%;
-    flex-grow: 1;
+    flex-grow: 5;
+    flex-basis: 0;
     display: flex;
     flex-direction: column;
+    
 }
 
 .form-wrap{
     display: flex;
     flex-direction: column;
-    gap: 10px
+    gap: 10px;
+    flex-grow: 1;
+    flex-basis: 0;
 }
 
 .create-form-input{
@@ -392,8 +444,6 @@ textarea {
 .create-form-input input{
     flex-grow: 6;
     flex-basis: 0;
-    background-color: #d4d4d47e;
-    
     border-radius: 8px;
 }
 
@@ -401,14 +451,21 @@ textarea {
     flex-direction: column;
     justify-content: start;
     align-items: start;
-    flex-shrink: 0;
+    flex-grow: 1;
+    flex-basis: 0;
 }
 
 .create-form-textarea textarea{
     width: 100%;
-    flex-grow: 1;
-    flex-basis: 0;
-    background-color: #d4d4d47e;
+    height: 70%;
+}
+
+.input-inset-shadow{
+    -webkit-box-shadow: inset 0px 7px 10px -2px rgba(0, 0, 0, 0.18);
+    -moz-box-shadow: inset 0px 7px 10px -2px rgba(0, 0, 0, 0.18);
+    box-shadow: inset 0px 7px 10px -2px rgba(0, 0, 0, 0.18);
+
+    background-color: #eee;
 }
 
 input[type='datetime-local']{
@@ -429,13 +486,16 @@ input[type='datetime-local']{
     height: 32px;
     width: 32px;
 
-    border-radius: 16px;
 }
 
 .delete-content{
-    background-color: red;
+    background-image: url("../img/icon/delete.png");
+    background-size: cover;
+    background-repeat: no-repeat;
 }
 
 .edit-content{
-    background-color: green;
+    background-image: url("../img/icon/edit.png");
+    background-size: cover;
+    background-repeat: no-repeat;
 }
