@@ -50,6 +50,38 @@ A Happy Routine Orgnaier : [AHRO](https://mamananama.github.io/ahro.github.io/)
 * 위젯
   * 시계
   * 스티키 노트
+<br/>
+
+
+#### 파일 트리  
+```
+└─ahro
+    │  index.html
+    │
+    ├─css
+    │      common.css
+    │      main.css
+    │
+    ├─img
+    │  │  smile-5865208_640.png
+    │  │
+    │  └─icon
+    │          chatlog.png
+    │          close.png
+    │          create.png
+    │          delete.png
+    │          edit.png
+    │          editanddelete.png
+    │          notify.png
+    │
+    └─js
+            main.js
+
+```
+
+
+#### GPT 순서도
+![ahro diagram drawio](https://github.com/mamananama/ahro.github.io/assets/114140050/5b65519b-e67c-4589-8675-2ba20829a229)
 
 
 <br/>
@@ -59,7 +91,7 @@ A Happy Routine Orgnaier : [AHRO](https://mamananama.github.io/ahro.github.io/)
 
 ### 3. 구현 동작
 ---
-### 대화형 처리
+#### 대화형 처리
 ##### 대화형 처리 - 일정 생성
 
 
@@ -120,7 +152,3 @@ https://github.com/mamananama/ahro.github.io/assets/114140050/dfb418f1-394b-4cbf
 
 
 https://github.com/mamananama/ahro.github.io/assets/114140050/bb165e37-acd0-4344-a1cc-09b3c135183c
-
-
-
-## 후기
