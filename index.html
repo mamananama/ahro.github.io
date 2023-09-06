@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko-KR">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>AHRO: A Happy Routine Organizer</title>
+
+		<!-- https://animate.style/ popup animation 효과 사용-->
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+		<link rel="stylesheet" href="./css/common.css" />
+		<link rel="stylesheet" href="./css/main.css" />
+	</head>
+
+	<body>
+		<main>
+			<!-- back ground 효과 시작 -->
+			<div class="background">
+				<span></span>
+				<span></span>
+				<span></span>
+				<span></span>
+				<span></span>
+				<span></span>
+				<span></span>
+				<span></span>
+				<span></span>
+				<span></span>
+			</div>
+			<!-- back ground 효과 끝 -->
+			<header class="transparent-bg header-container">
+				<h1>AHRO</h1>
+				<h2>A Happy Routine Organizer</h2>
+			</header>
+			<div class="main-view">
+				<div class="feature-view">
+					<div class="feature-container transparent-bg">
+						<div class="menu-area">
+							<div class="transparent-bg menu-icon chat-log" id="chat-log">
+								<label>채팅 로그</label>
+							</div>
+						</div>
+						<div class="feature-area">
+							<div class="transparent-bg" id="chat-log-view">
+								<div class="title"><h3>채팅 로그</h3></div>
+								<div class="inner-wrap">
+									<!-- 메시지 예시 -->
+									<!-- <div id="user-chat">
+										<div class="chat-message transparent-bg">테스트로 보내는 메시지</div>
+									</div> -->
+									<!-- <div id="assistant-chat">
+										<div class="chat-message">
+											
+											<div class="message">"여기에 메시지를 입력"</div>
+										</div>
+									</div> -->
+								</div>
+							</div>
+							<div class="feature-profile"><div class="profile transparent-bg"></div></div>
+							<div class="feature-message">
+								<div id="bubble-wrap">
+									<!-- assistant answer 영역 -->
+									<!-- <div class="transparent-bg bubble">이 곳에 메시지를 입력</div> -->
+								</div>
+							</div>
+						</div>
+						<div class="input-area">
+							<form class="input-form">
+								<textarea
+									name="chat"
+									placeholder="AHRO에게 말을 걸어주세요!"
+									class="chat transparent-bg"></textarea>
+								<button type="submit" class="btn transparent-bg">전송</button>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div class="contents-view">
+					<div class="contents-container transparent-bg">
+						<div class="widget-area area">
+							<h2>위젯 보드</h2>
+							<div class="menu-area"></div>
+							<div class="widget-list list">
+								<div class="content transparent-bg">
+									<label for="clock-local"><h4>현재 시간</h4></label>
+									<div id="clock-local">
+										<div id="date-face"></div>
+										<div id="clock-face">
+											<div id="hour">00</div>
+											<div id="separator">:</div>
+											<div id="minutes">00</div>
+											<div id="separator">:</div>
+											<div id="seconds">00</div>
+										</div>
+									</div>
+								</div>
+								<div class="content transparent-bg">
+									<label for="sticky-note"><h4>스티키 노트</h4></label>
+									<div id="sticky-note">
+										<textarea placeholder="여기에 간단한 메모를 입력하세요."></textarea>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="contents-area area">
+							<h2>할 일 목록</h2>
+							<div class="menu-area">
+								<div class="transparent-bg menu-icon create-menu open-form">
+									<label>일정 생성</label>
+								</div>
+								<div class="transparent-bg menu-icon edit-menu">
+									<label>일정 수정 및 삭제</label>
+								</div>
+							</div>
+							<div class="contents-list-event-container">
+								<div class="contents-list list">
+									<!-- 여기에 일정이 추가됩니다. -->
+									<!-- 예시 -->
+									<!-- <div class="content transparent-bg">
+										<h3>새로운 일정의 제목</h3>
+										<span class="time">시작 시간: 2029-02-21 02:04:00</span>
+										<span class="time">종료 시간: 2029-02-21 14:04:00</span>
+										<p>새로운 일정의 노트입니다.</p>
+										<div id="edit-menu-content">
+											<div class="menu-icon-content delete-content delete" id="delete">
+												<span id="key" style="display: none">json_1693880322675</span>
+											</div>
+											<div class="menu-icon-content edit-content edit open-form" id="edit">
+												<span id="key" style="display: none">json_1693880322675</span>
+											</div>
+										</div>
+									</div> -->
+								</div>
+							</div>
+						</div>
+						<div id="popup-event-container">
+							<div class="popup-container" id="popup-container">
+								<div class="transparent-bg contents-container">
+									<div class="menu-area popup-menu">
+										<h3 id="popup-title">일정을 추가합니다.</h3>
+										<div class="close-button"><label>닫힘 버튼</label></div>
+									</div>
+									<form class="create-form" method="post">
+										<div class="form-wrap">
+											<div class="create-form-input">
+												<label for="title">일정 제목</label>
+												<input
+													id="title"
+													class="input-inset-shadow title-field"
+													type="text"
+													required />
+											</div>
+											<div class="create-form-input">
+												<label for="start">시작 시간</label>
+												<input
+													id="start"
+													class="input-inset-shadow start-field"
+													type="datetime-local"
+													required />
+											</div>
+											<div class="create-form-input">
+												<label for="end">종료 시간</label>
+												<input
+													id="end"
+													class="input-inset-shadow end-field"
+													type="datetime-local" />
+											</div>
+											<div class="create-form-textarea">
+												<label for="note">노트</label>
+												<textarea class="input-inset-shadow note-field" id="note"></textarea>
+											</div>
+										</div>
+										<div class="popup-button-area">
+											<button type="button" class="btn" id="popup-submit">확인</button>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+	</body>
+
+	<script src="./js/main.js"></script>
+</html>
