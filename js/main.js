@@ -11,14 +11,14 @@ let url = `https://estsoft-openai-api.jejucodingcamp.workers.dev/`;
 let question;
 
 // 오늘날자를 string으로 return
-function setToday() {
-	let today = new Date();
+function setToday(mode) {
+	let d = new Date();
 
-	let year = today.getFullYear(); // 년도
-	let month = today.getMonth() + 1; // 월
-	let date = today.getDate(); // 날짜
+	let year = d.getFullYear(); // 년도
+	let month = d.getMonth() + 1; // 월
+	let date = d.getDate(); // 날짜
 	let day; // 요일
-	switch (today.getDay()) {
+	switch (d.getDay()) {
 		case 0:
 			day = "일";
 			break;
@@ -41,25 +41,18 @@ function setToday() {
 			day = "토";
 			break;
 	}
-	let hour = today.getHours();
-	let minutes = today.getMinutes();
-	let seconds = today.getSeconds();
+	let hour = d.getHours();
+	let minutes = d.getMinutes();
+	let seconds = d.getSeconds();
 
-	let stringToday =
-		year +
-		"년 " +
-		month +
-		"월 " +
-		date +
-		"일 " +
-		day +
-		"요일 " +
-		hour +
-		"시 " +
-		minutes +
-		"분 " +
-		seconds +
-		"초 ";
+	let today = year + "년 " + month + "월 " + date + "일 " + day + "요일 ";
+	let time = hour + "시 " + minutes + "분 " + seconds + "초 ";
+
+	if (mode == "full") {
+		stringToday = today + time;
+	} else {
+		stringToday = today;
+	}
 
 	return stringToday;
 }
@@ -106,7 +99,8 @@ let answeringGPT = [
 	},
 	{
 		role: "system",
-		content: "오늘의 날짜는 " + setToday() + " 이고, assistant는 오늘의 날짜에 맞춰서 대답한다.",
+		content:
+			"오늘의 날짜는 " + setToday("full") + " 이고, assistant는 오늘의 날짜에 맞춰서 대답한다.",
 	},
 	{
 		role: "system",
@@ -158,7 +152,8 @@ let processJsonQueryData = [
 	},
 	{
 		role: "system",
-		content: "오늘의 날짜는 " + setToday() + " 이고, assistant는 오늘의 날짜에 맞춰서 대답한다.",
+		content:
+			"오늘의 날짜는 " + setToday("full") + " 이고, assistant는 오늘의 날짜에 맞춰서 대답한다.",
 	},
 	{
 		role: "system",
@@ -201,7 +196,7 @@ let storageGPT = [
 		role: "system",
 		content:
 			"오늘의 날짜는 " +
-			setToday() +
+			setToday("full") +
 			" 이다. assistant는 user의 질문이 '오늘'에 해당하는 것이라면 이 날짜에 맞춰 대답한다. user의 질문이 '오늘'에 해당하는 것이 아니라면, 이 날짜에 맞춰서 대답하지 않는다.",
 	},
 	{
@@ -373,11 +368,13 @@ const printAnswer = (answer) => {
 	$featureMessage.removeChild(document.getElementById("bubble-wrap"));
 	const $bubbleWrap = document.createElement("div");
 	$bubbleWrap.id = "bubble-wrap";
+	const $bubble = document.createElement("div");
 	const $messageDiv = document.createElement("div");
 	$messageDiv.innerText = answer;
-	$messageDiv.classList.add("transparent-bg", "bubble");
-	$messageDiv.id = "bubble";
-	$bubbleWrap.appendChild($messageDiv);
+	$bubble.classList.add("transparent-bg", "bubble");
+	$bubble.id = "bubble";
+	$bubble.appendChild($messageDiv);
+	$bubbleWrap.appendChild($bubble);
 	$featureMessage.appendChild($bubbleWrap);
 };
 
@@ -400,12 +397,13 @@ const messagePost = async () => {
 			console.log(content);
 			const keyword = keywordParser(content).trim();
 			let message = content.replaceAll(keyword, "");
-			// console.log("메세지: " + message);
-			// console.log("키워드:" + keyword);
+			console.log("메세지: " + message);
+			console.log("키워드:" + keyword);
 			switch (keyword) {
 				case "!수정": {
 					console.log("수정 시작");
 					localStoragePost(keyword, message);
+					answeringPost(message);
 					break;
 				}
 				case "!생성": {
@@ -416,17 +414,22 @@ const messagePost = async () => {
 					sendQuestion(processJsonQueryData, jsonCreateQuery);
 					processJsonPost();
 					processJsonQueryData.pop();
+					answeringPost(message);
 					break;
 				}
 				case "!삭제": {
 					localStoragePost(keyword, message);
+					answeringPost(message);
 					break;
 				}
-
+				case "!탐색": {
+					localStoragePost(keyword, message);
+					break;
+				}
 				default: {
+					answeringPost(message);
 				}
 			}
-			answeringPost(message);
 		})
 		.catch((err) => {
 			console.log(err);
@@ -474,6 +477,7 @@ const answeringPost = async (message) => {
 		.then((res) => {
 			const answer = res.choices[0].message.content;
 			printAnswer(answer);
+			printChatlog(answer, false);
 		})
 		.catch((err) => {
 			console.log(err);
@@ -483,9 +487,10 @@ const answeringPost = async (message) => {
 // storage 기억 GPT api 요청 보내는 함수
 async function localStoragePost(keyword, message) {
 	let jsonCtn = makeAssistantRememberScheduel(); // 현재 localStorage에 저장된 data 보내기, localStorage에 저장된 json 갯수 return
+	let findCtn = 0;
+
 	console.log(message);
 	jsonCtn++;
-	console.log(jsonCtn);
 
 	const query =
 		keyword + " " + message + " 이를 system이 준 json data 양식에 따라, json data만 return해줘";
@@ -511,7 +516,6 @@ async function localStoragePost(keyword, message) {
 
 			switch (keyword) {
 				case "!수정": {
-					console.log("진짜 수정 시작");
 					for (key in keyJson) {
 						let json = storage.getItem(keyJson[key]);
 						console.log("수정대상: " + json);
@@ -537,6 +541,25 @@ async function localStoragePost(keyword, message) {
 					}
 					break;
 				}
+				case "!탐색": {
+					console.log("탐색 시작");
+					for (key in keyJson) {
+						let json = storage.getItem(keyJson[key]);
+						console.log("탐색 대상 : " + json);
+						answeringGPT.push({
+							role: "system",
+							content:
+								"user의 요청으로 찾은 일정은, " +
+								json +
+								" 이다. 이후, user로부터 일정 요청을 assistant가 받으면 이 일정을 return한다.",
+						});
+						findCtn++;
+					}
+					console.log("answering에 넣는: " + message);
+					answeringPost(message);
+					findCtn++;
+					break;
+				}
 				default: {
 					console.log("!오류");
 					break;
@@ -552,6 +575,11 @@ async function localStoragePost(keyword, message) {
 		storageGPT.pop();
 		jsonCtn--;
 	}
+
+	while (findCtn > 0) {
+		answeringGPT.pop;
+		findCtn--;
+	}
 }
 
 $inputForm.addEventListener("submit", (e) => {
@@ -560,7 +588,7 @@ $inputForm.addEventListener("submit", (e) => {
 	questionData.push(question);
 	sendQuestion(preprocessQueryData, question);
 	messagePost();
-	printQuestion(question, true);
+	printChatlog(question, true);
 });
 
 // ====================================================
@@ -574,6 +602,10 @@ $chatLog.addEventListener("click", (e) => {
 		$chatLogView.style.display = "flex";
 		chatLogOpened = !chatLogOpened;
 		console.log(chatLogOpened);
+
+		// animation
+		$chatLogView.classList.add("animate__animated", "animate__bounceIn");
+		$chatLogView.style.setProperty("--animation-duration", "1s");
 	} else {
 		console.log($chatLogView);
 		$chatLogView.style.display = "none";
@@ -641,13 +673,20 @@ function openPopup(manualKey) {
 	$popupContainer.style.display = "flex";
 	$popupContainer.style.justifyContent = "center";
 	$popupContainer.style.alignItems = "center";
-
 	$popupContents.style.display = "flex";
+
+	// animation
+	$popupContainer.classList.add("animate__animated", "animate__bounceIn");
+	$popupContainer.style.setProperty("--animation-duration", "1s");
 }
 function closePopup(eventTarget) {
-	document.getElementById("popup-event-container").style.display = "none";
-	document.getElementById("popup-container").style.display = "none";
-	document.getElementById("popup-container").children.item(0).style.display = "none";
+	const $popupEventContainer = document.getElementById("popup-event-container");
+	const $popupContainer = document.getElementById("popup-container");
+	const $contensContainer = document.getElementById("popup-container").children.item(0);
+
+	$popupEventContainer.style.display = "none";
+	$popupContainer.style.display = "none";
+	$contensContainer.style.display = "none";
 
 	document.getElementById("title").value = "";
 	document.getElementById("start").value = "";
@@ -775,8 +814,13 @@ function saveScheduleInStorage(_key, json) {
 	key = null;
 }
 
-function printQuestion(question, user) {
-	const $chatLogView = document.querySelector("#chat-log-view");
+function printChatlog(message, user) {
+	const $chatLogViewInnerWrap = document
+		.querySelector("#chat-log-view")
+		.getElementsByClassName("inner-wrap")
+		.item(0);
+
+	console.log($chatLogViewInnerWrap);
 
 	const $chat = document.createElement("div");
 	const $chatMessage = document.createElement("div");
@@ -786,7 +830,42 @@ function printQuestion(question, user) {
 		$chat.id = "assistant-chat";
 	}
 	$chatMessage.classList.add("chat-message", "transparent-bg");
-	$chatMessage.innerHTML = question;
+	$chatMessage.innerHTML = message;
 	$chat.appendChild($chatMessage);
-	$chatLogView.children.item(0).appendChild($chat);
+	$chatLogViewInnerWrap.appendChild($chat);
 }
+
+// widget
+// sticky-note start
+const $stickyNoteTextarea = document.getElementById("sticky-note").children.item(0);
+$stickyNoteTextarea.addEventListener("input", (e) => {
+	let note = e.target.value;
+	console.log(note);
+	storage.setItem("note", note);
+});
+
+function initializeStickyNote() {
+	let initialText = storage.getItem("note");
+	if (initialText) {
+		$stickyNoteTextarea.innerHTML = initialText;
+	} else {
+		$stickyNoteTextarea.innerHTML = "";
+	}
+}
+initializeStickyNote();
+// sticky-note end
+
+// clock-local start
+
+function startClock() {
+	const d = new Date();
+
+	let today = setToday("");
+	document.getElementById("date-face").innerText = today;
+	document.getElementById("hour").innerText = String(d.getHours()).padStart(2, "0");
+	document.getElementById("minutes").innerText = String(d.getMinutes()).padStart(2, "0");
+	document.getElementById("seconds").innerText = String(d.getSeconds()).padStart(2, "0");
+}
+startClock();
+setInterval(startClock, 1000);
+// clock-local end

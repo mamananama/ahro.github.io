@@ -5,13 +5,31 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>AHRO: A Happy Routine Organizer</title>
 
-		<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+		<!-- https://animate.style/ popup animation 효과 사용-->
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
 		<link rel="stylesheet" href="../css/common.css" />
 		<link rel="stylesheet" href="../css/main.css" />
 	</head>
 
 	<body>
 		<main>
+			<!-- back ground 효과 시작 -->
+			<div class="background">
+				<span></span>
+				<span></span>
+				<span></span>
+				<span></span>
+				<span></span>
+				<span></span>
+				<span></span>
+				<span></span>
+				<span></span>
+				<span></span>
+			</div>
+			<!-- back ground 효과 끝 -->
 			<header class="transparent-bg header-container">
 				<h1>AHRO</h1>
 				<h2>A Happy Routine Organizer</h2>
@@ -26,15 +44,18 @@
 						</div>
 						<div class="feature-area">
 							<div class="transparent-bg" id="chat-log-view">
+								<div class="title"><h3>채팅 로그</h3></div>
 								<div class="inner-wrap">
+									<!-- 메시지 예시 -->
 									<!-- <div id="user-chat">
 										<div class="chat-message transparent-bg">테스트로 보내는 메시지</div>
 									</div> -->
-									<div id="assistant-chat">
+									<!-- <div id="assistant-chat">
 										<div class="chat-message">
+											
 											<div class="message">"여기에 메시지를 입력"</div>
 										</div>
-									</div>
+									</div> -->
 								</div>
 							</div>
 							<div class="feature-profile"><div class="profile transparent-bg"></div></div>
@@ -46,13 +67,13 @@
 							</div>
 						</div>
 						<div class="input-area">
-							<div class="input-form">
+							<form class="input-form">
 								<textarea
 									name="chat"
 									placeholder="AHRO에게 말을 걸어주세요!"
 									class="chat transparent-bg"></textarea>
 								<button type="submit" class="btn transparent-bg">전송</button>
-							</div>
+							</form>
 						</div>
 					</div>
 				</div>
@@ -60,9 +81,27 @@
 					<div class="contents-container transparent-bg">
 						<div class="widget-area area">
 							<h2>위젯 보드</h2>
-							<div class="menu-area">메뉴 항목</div>
+							<div class="menu-area"></div>
 							<div class="widget-list list">
-								<div class="content transparent-bg"></div>
+								<div class="content transparent-bg">
+									<label for="clock-local"><h4>현재 시간</h4></label>
+									<div id="clock-local">
+										<div id="date-face"></div>
+										<div id="clock-face">
+											<div id="hour">00</div>
+											<div id="separator">:</div>
+											<div id="minutes">00</div>
+											<div id="separator">:</div>
+											<div id="seconds">00</div>
+										</div>
+									</div>
+								</div>
+								<div class="content transparent-bg">
+									<label for="sticky-note"><h4>스티키 노트</h4></label>
+									<div id="sticky-note">
+										<textarea placeholder="여기에 간단한 메모를 입력하세요."></textarea>
+									</div>
+								</div>
 							</div>
 						</div>
 						<div class="contents-area area">
