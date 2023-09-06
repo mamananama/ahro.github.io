@@ -59,6 +59,69 @@ A Happy Routine Orgnaier : [AHRO](https://mamananama.github.io/ahro.github.io/)
 
 ### 3. UI 이미지
 ### 4. 구현 동작
+---
+### 대화형 처리
+##### 대화형 처리 - 일정 생성
+
+
+https://github.com/mamananama/ahro.github.io/assets/114140050/70a06744-85d6-4294-a539-25e8adc6fa6e
+
+
+
+##### 대화형 처리 - 일정 수정
+
+
+https://github.com/mamananama/ahro.github.io/assets/114140050/179b7cfe-4f0d-406d-9b2b-71f54dcba338
+
+
+
+##### 대화형 처리 - 일정 삭제
+
+
+https://github.com/mamananama/ahro.github.io/assets/114140050/4a5f25cf-f981-4991-a94e-6a2ac0fc64eb
+
+
+##### 대화형 처리 - 일정 탐색
+
+
+https://github.com/mamananama/ahro.github.io/assets/114140050/222eee04-5b61-4e8b-b27e-a2792d0a0a52
+
+
+##### 대화형 처리 - 일반 대화
+
+
+https://github.com/mamananama/ahro.github.io/assets/114140050/b285bb9e-13a2-47ec-a204-458b969ebbcd
+
+
+---
+#### 입력형 처리
+##### 입력형 처리 - 일정 생성
+
+
+https://github.com/mamananama/ahro.github.io/assets/114140050/e516ec3e-f9d6-45e1-b671-84e935ad948b
+
+
+
+##### 입력형 처리 - 일정 수정
+
+
+https://github.com/mamananama/ahro.github.io/assets/114140050/09f3e91b-1217-4c2c-8d13-555f4fd30c38
+
+
+
+##### 입력형 처리 - 일정 삭제
+
+
+https://github.com/mamananama/ahro.github.io/assets/114140050/dfb418f1-394b-4cbf-bcb9-2281fee059c7
+
+
+---
+### 부가기능
+#### 시계 및 스티키 노트
+
+
+https://github.com/mamananama/ahro.github.io/assets/114140050/bb165e37-acd0-4344-a1cc-09b3c135183c
+
 
 
 ## 후기
