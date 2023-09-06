@@ -5,13 +5,17 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>AHRO: A Happy Routine Organizer</title>
 
+		<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 		<link rel="stylesheet" href="../css/common.css" />
 		<link rel="stylesheet" href="../css/main.css" />
 	</head>
 
 	<body>
 		<main>
-			<header class="header-container">header</header>
+			<header class="transparent-bg header-container">
+				<h1>AHRO</h1>
+				<h2>A Happy Routine Organizer</h2>
+			</header>
 			<div class="main-view">
 				<div class="feature-view">
 					<div class="feature-container transparent-bg">
@@ -35,21 +39,20 @@
 							</div>
 							<div class="feature-profile"><div class="profile transparent-bg"></div></div>
 							<div class="feature-message">
-								<div>
-									Lorem ipsum dolor sit amet consectetur adipisicing elit. A voluptatum magnam
-									nesciunt illo temporibus. Eaque quos debitis deserunt, sint commodi quia hic eum
-									repellendus nulla nam quibusdam esse? Maiores, voluptatibus!
+								<div id="bubble-wrap">
+									<!-- assistant answer 영역 -->
+									<!-- <div class="transparent-bg bubble">이 곳에 메시지를 입력</div> -->
 								</div>
 							</div>
 						</div>
 						<div class="input-area">
-							<form action="#" class="input-form">
+							<div class="input-form">
 								<textarea
 									name="chat"
 									placeholder="AHRO에게 말을 걸어주세요!"
 									class="chat transparent-bg"></textarea>
 								<button type="submit" class="btn transparent-bg">전송</button>
-							</form>
+							</div>
 						</div>
 					</div>
 				</div>
