@@ -219,7 +219,7 @@ function returnJSON(text) {
 	const jsonEndIndex = text.lastIndexOf("}");
 	let jsonString = text.slice(jsonStartIndex, jsonEndIndex + 1);
 
-	console.log("json을 찾아라: " + jsonString);
+	// console.log("json을 찾아라: " + jsonString);
 
 	return JSON.parse(jsonString);
 }
@@ -307,7 +307,7 @@ let questionData = [];
 // input에 입력된 질문 받아오는 함수
 $chat.addEventListener("input", (e) => {
 	question = e.target.value;
-	console.log(question);
+	// console.log(question);
 });
 
 // 사용자의 질문을 객체를 만들어서 push
@@ -357,7 +357,7 @@ function makeAssistantRememberScheduel() {
 				role: "system",
 				content: schedule + "이 일정에 해당하는 key값은 '" + key + "'이다.",
 			});
-			console.log(schedule);
+			// console.log(schedule);
 		}
 	}
 	return jsonNumCtn;
@@ -394,20 +394,20 @@ const messagePost = async () => {
 		.then((res) => res.json())
 		.then((res) => {
 			let content = res.choices[0].message.content;
-			console.log(content);
+			// console.log(content);
 			const keyword = keywordParser(content).trim();
 			let message = content.replaceAll(keyword, "");
-			console.log("메세지: " + message);
-			console.log("키워드:" + keyword);
+			// console.log("메세지: " + message);
+			// console.log("키워드:" + keyword);
 			switch (keyword) {
 				case "!수정": {
-					console.log("수정 시작");
+					// console.log("수정 시작");
 					localStoragePost(keyword, message);
 					answeringPost(message);
 					break;
 				}
 				case "!생성": {
-					console.log("생성 시작");
+					// console.log("생성 시작");
 					const jsonCreateQuery =
 						message +
 						" system이 준 json data 양식에 따라 'title', 'start', 'end', 'note'의 key 값에 value를 추가한 json data만 return해.";
@@ -489,14 +489,14 @@ async function localStoragePost(keyword, message) {
 	let jsonCtn = makeAssistantRememberScheduel(); // 현재 localStorage에 저장된 data 보내기, localStorage에 저장된 json 갯수 return
 	let findCtn = 0;
 
-	console.log(message);
+	// console.log(message);
 	jsonCtn++;
 
 	const query =
 		keyword + " " + message + " 이를 system이 준 json data 양식에 따라, json data만 return해줘";
 
 	sendQuestion(storageGPT, query);
-	console.log(storageGPT);
+	// console.log(storageGPT);
 
 	const result = await fetch(url, {
 		method: "POST",
@@ -509,16 +509,16 @@ async function localStoragePost(keyword, message) {
 		.then((res) => res.json())
 		.then((res) => {
 			const content = res.choices[0].message.content;
-			console.log("키 찾기: " + content);
+			// console.log("키 찾기: " + content);
 			const keyJson = returnJSON(content);
-			console.log("찾은 키값: ");
-			console.log(keyJson);
+			// console.log("찾은 키값: ");
+			// console.log(keyJson);
 
 			switch (keyword) {
 				case "!수정": {
 					for (key in keyJson) {
 						let json = storage.getItem(keyJson[key]);
-						console.log("수정대상: " + json);
+						// console.log("수정대상: " + json);
 						processJsonQueryData.push({
 							role: "system",
 							content:
@@ -534,7 +534,7 @@ async function localStoragePost(keyword, message) {
 					break;
 				}
 				case "!삭제": {
-					console.log("삭제 시작");
+					// console.log("삭제 시작");
 					for (key in keyJson) {
 						storage.removeItem(keyJson[key]);
 						processJsonQueryData.pop();
@@ -542,22 +542,25 @@ async function localStoragePost(keyword, message) {
 					break;
 				}
 				case "!탐색": {
-					console.log("탐색 시작");
+					// console.log("탐색 시작");
 					for (key in keyJson) {
 						let json = storage.getItem(keyJson[key]);
-						console.log("탐색 대상 : " + json);
+						// console.log("탐색 대상 : " + json);
 						answeringGPT.push({
 							role: "system",
-							content:
-								"user의 요청으로 찾은 일정은, " +
-								json +
-								" 이다. 이후, user로부터 일정 요청을 assistant가 받으면 이 일정을 return한다.",
+							content: "user의 요청으로 찾은 일정은, " + json + " 이다.",
 						});
 						findCtn++;
 					}
-					console.log("answering에 넣는: " + message);
+					answeringGPT.push({
+						role: "system",
+						content:
+							"이후, user로부터 일정 탐색 요청을 assistant가 받으면 system으로부터 받은 일정들을 return한다.",
+					});
+
+					// console.log("answering에 넣는: " + message);
 					answeringPost(message);
-					findCtn++;
+					findCtn += 2;
 					break;
 				}
 				default: {
@@ -601,13 +604,13 @@ $chatLog.addEventListener("click", (e) => {
 	if (!chatLogOpened) {
 		$chatLogView.style.display = "flex";
 		chatLogOpened = !chatLogOpened;
-		console.log(chatLogOpened);
+		// console.log(chatLogOpened);
 
 		// animation
 		$chatLogView.classList.add("animate__animated", "animate__bounceIn");
 		$chatLogView.style.setProperty("--animation-duration", "1s");
 	} else {
-		console.log($chatLogView);
+		// console.log($chatLogView);
 		$chatLogView.style.display = "none";
 		chatLogOpened = !chatLogOpened;
 	}
@@ -820,7 +823,7 @@ function printChatlog(message, user) {
 		.getElementsByClassName("inner-wrap")
 		.item(0);
 
-	console.log($chatLogViewInnerWrap);
+	// console.log($chatLogViewInnerWrap);
 
 	const $chat = document.createElement("div");
 	const $chatMessage = document.createElement("div");
@@ -840,7 +843,7 @@ function printChatlog(message, user) {
 const $stickyNoteTextarea = document.getElementById("sticky-note").children.item(0);
 $stickyNoteTextarea.addEventListener("input", (e) => {
 	let note = e.target.value;
-	console.log(note);
+	// console.log(note);
 	storage.setItem("note", note);
 });
 
