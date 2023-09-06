@@ -163,17 +163,21 @@ let processJsonQueryData = [
 	{
 		role: "system",
 		content:
-			"json 데이터 양식은 다음과 같다. {title: <여기에는 일정의 이름이 들어간다>, start:<여기에는 일정의 시작되는 시간이 들어간다. yyyy-mm-dd hh:mm:ss의 양식으로 저장한다.>, end:<여기에는 일정이 종료되는 시간이 들어간다 yyyy-mm-dd hh:mm:ss의 양식으로 저장한다> note:<여기에는 일정에 대한 내용 또는 메모가 들어간다>.}",
+			"json data 양식은 다음과 같다. {title: <여기에는 일정의 이름이 들어간다>, start:<여기에는 일정의 시작되는 시간이 들어간다. yyyy-mm-dd hh:mm:ss의 양식으로 저장한다.>, end:<여기에는 일정이 종료되는 시간이 들어간다 yyyy-mm-dd hh:mm:ss의 양식으로 저장한다> note:<여기에는 일정에 대한 내용 또는 메모가 들어간다>.}",
 	},
 	{
 		role: "system",
 		content:
-			"assistant는 user의 질문에 대해 json 양식을 참고하여 json data 만 user에게 return한다.",
+			"assistant는 user의 질문에 대해 json data 양식을 참고하여 json data 만 user에게 return한다.",
 	},
 	{
 		role: "system",
 		content:
-			"만약 system으로 부터 json data를 받는다면 assistant는 이를 기억한다. JSON data를 분석하면, 일정의 제목은 'title',  일정의 시작 시간은 'start', 종료 그리고 추가사항, 노트 또는 메모는 'note'에 값이 있다. 이후 user의 요청을 받으면 해당 json key의 value를 통해 json data를 생성한다.",
+			"만약 system으로부터 json data를 받는다면 assistant는 이를 기억한다. JSON data를 분석하면, 일정의 제목은 'title', 일정의 시작 시간은 'start', 종료 그리고 추가사항, 노트 또는 메모는 'note'에 값이 있다. 이후 user의 요청을 받으면 해당 json data를 참고하여 json data 생성한다.",
+	},
+	{
+		role: "system",
+		content: "user가 변경을 말하지 않은 값은 system에서 받은 값을 그대로 사용한다.",
 	},
 ];
 
@@ -191,31 +195,37 @@ let storageGPT = [
 	{
 		role: "system",
 		content:
+			"assistant는 user의 일정관련 질문에 분석하여 일정을 json 데이터로 가공하는 처리기이다.",
+	},
+	{
+		role: "system",
+		content:
 			"오늘의 날짜는 " +
 			setToday() +
 			" 이다. assistant는 user의 질문이 '오늘'에 해당하는 것이라면 이 날짜에 맞춰 대답한다. user의 질문이 '오늘'에 해당하는 것이 아니라면, 이 날짜에 맞춰서 대답하지 않는다.",
 	},
 	{
 		role: "system",
-		content:
-			"assistant는 기억한 일정을 기반으로 user의 질문을 분석하여 json 데이터를 user에게 return한다.",
+		content: `json data 양식은 다음과 같다. {"delimiter": "key 값"} delimiter 부분은 찾은 항목이 추가됨에 따라 0부터 1씩 증가 시키면서 붙인다.`,
 	},
 	{
 		role: "system",
-		content:
-			"assistant가 user에게 return하는 json data의 양식은 다음과 같다. {delimiter: 'key 값'} delimiter 부분은 item이 추가됨에 따라 0부터 1씩 증가 시키면서 붙인다.",
+		content: `예를들어, user가 "내일 모든 일정을 취소하려고 해"라는 요청에, assistant는 기억하고 있는 일정 중, 내일 일정에 해당하는 일정을 찾아 "{ "item_0": "<찾은 일정 키 값>", "item_1": "<찾은 일정의 키 값>"}"의 json data 양식으로만 대답해야한다. 만약 'json_28737612872'와 'json_287371231232'라는 키 값을 찾았다면, 양식에 따른다면,  '{"item_0": "json_28737612872", "item_1": "json_287371231232"}'으로 답해야한다.`,
 	},
 	{
 		role: "system",
-		content:
-			'예를들어, user가 \'내일 모든 일정을 취소하려고 해\'라는 요청에, assistant는\'{ "item_0": "<찾은 일정 키 값>", "item_1": "<찾은 일정 키 값>"}\'와 으로 대답해야한다. 이는 예시이며, value 값은 실제로 기억하고 있는 값 중에서 가져와야한다.',
+		content: `assistant는 키 값을 return할 때 기억하고 있는 키 값만을 return해야한다. 없는 키 값을 return해서는 안된다.`,
 	},
 ];
 
 function returnJSON(text) {
+	text = text.replaceAll('"', '"');
 	const jsonStartIndex = text.indexOf("{");
-	const jsonEndIndex = text.indexOf("}");
-	const jsonString = text.slice(jsonStartIndex, jsonEndIndex + 1);
+	const jsonEndIndex = text.lastIndexOf("}");
+	let jsonString = text.slice(jsonStartIndex, jsonEndIndex + 1);
+
+	console.log("json을 찾아라: " + jsonString);
+
 	return JSON.parse(jsonString);
 }
 
@@ -288,7 +298,7 @@ function createList() {
 	$contentsList.classList.add("contents-list", "list");
 
 	for (jsonkey in storage) {
-		if (jsonkey.toString().match("json") != null) {
+		if (jsonkey.toString().match("json")) {
 			const jsonText = storage[jsonkey];
 			createContent(jsonkey, jsonText);
 		}
@@ -358,13 +368,73 @@ function makeAssistantRememberScheduel() {
 	return jsonNumCtn;
 }
 
+// answeringGPT로부터 받은 answer 출력
 const printAnswer = (answer) => {
-	let p = document.createElement("p");
-	p.innerText = answer;
-	$featureMessage.appendChild(p);
+	$featureMessage.removeChild(document.getElementById("bubble-wrap"));
+	const $bubbleWrap = document.createElement("div");
+	$bubbleWrap.id = "bubble-wrap";
+	const $messageDiv = document.createElement("div");
+	$messageDiv.innerText = answer;
+	$messageDiv.classList.add("transparent-bg", "bubble");
+	$messageDiv.id = "bubble";
+	$bubbleWrap.appendChild($messageDiv);
+	$featureMessage.appendChild($bubbleWrap);
 };
 
 // api 요청보내는 함수
+
+// user 메시지 입력받아 api 요청 보내는 함수
+const messagePost = async () => {
+	// makeAssistantRememberScheduel();
+	const result = await fetch(url, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify(preprocessQueryData),
+		redirect: "follow",
+	})
+		.then((res) => res.json())
+		.then((res) => {
+			let content = res.choices[0].message.content;
+			console.log(content);
+			const keyword = keywordParser(content).trim();
+			let message = content.replaceAll(keyword, "");
+			// console.log("메세지: " + message);
+			// console.log("키워드:" + keyword);
+			switch (keyword) {
+				case "!수정": {
+					console.log("수정 시작");
+					localStoragePost(keyword, message);
+					break;
+				}
+				case "!생성": {
+					console.log("생성 시작");
+					const jsonCreateQuery =
+						message +
+						" system이 준 json data 양식에 따라 'title', 'start', 'end', 'note'의 key 값에 value를 추가한 json data만 return해.";
+					sendQuestion(processJsonQueryData, jsonCreateQuery);
+					processJsonPost();
+					processJsonQueryData.pop();
+					break;
+				}
+				case "!삭제": {
+					localStoragePost(keyword, message);
+					break;
+				}
+
+				default: {
+				}
+			}
+			answeringPost(message);
+		})
+		.catch((err) => {
+			console.log(err);
+		});
+	preprocessQueryData.pop();
+	// makeAssistantRememberScheduel();
+};
+
 // JSON 생성 GPT api 요청 보내는 함수
 const processJsonPost = async () => {
 	const result = await fetch(url, {
@@ -377,8 +447,10 @@ const processJsonPost = async () => {
 	})
 		.then((res) => res.json())
 		.then((res) => {
-			console.log(res);
 			let json = res.choices[0].message.content;
+			console.log("json: " + json);
+			json = returnJSON(json);
+			json = JSON.stringify(json);
 			console.log(json);
 			saveScheduleInStorage("", json);
 			createList();
@@ -388,18 +460,39 @@ const processJsonPost = async () => {
 		});
 };
 
+const answeringPost = async (message) => {
+	sendQuestion(answeringGPT, message);
+	const result = await fetch(url, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify(answeringGPT),
+		redirect: "follow",
+	})
+		.then((res) => res.json())
+		.then((res) => {
+			const answer = res.choices[0].message.content;
+			printAnswer(answer);
+		})
+		.catch((err) => {
+			console.log(err);
+		});
+};
+
 // storage 기억 GPT api 요청 보내는 함수
 async function localStoragePost(keyword, message) {
 	let jsonCtn = makeAssistantRememberScheduel(); // 현재 localStorage에 저장된 data 보내기, localStorage에 저장된 json 갯수 return
-	message = message + " beam_width:0 temperature:0";
 	console.log(message);
 	jsonCtn++;
 	console.log(jsonCtn);
 
-	const query = keyword + " " + message;
+	const query =
+		keyword + " " + message + " 이를 system이 준 json data 양식에 따라, json data만 return해줘";
 
 	sendQuestion(storageGPT, query);
 	console.log(storageGPT);
+
 	const result = await fetch(url, {
 		method: "POST",
 		headers: {
@@ -411,23 +504,24 @@ async function localStoragePost(keyword, message) {
 		.then((res) => res.json())
 		.then((res) => {
 			const content = res.choices[0].message.content;
-			const keyJson = JSON.parse(content);
+			console.log("키 찾기: " + content);
+			const keyJson = returnJSON(content);
+			console.log("찾은 키값: ");
+			console.log(keyJson);
 
 			switch (keyword) {
 				case "!수정": {
-					console.log("수정 시작");
+					console.log("진짜 수정 시작");
 					for (key in keyJson) {
-						let json = storage.getItem(key);
+						let json = storage.getItem(keyJson[key]);
+						console.log("수정대상: " + json);
 						processJsonQueryData.push({
 							role: "system",
 							content:
 								"수정할 일정은, " +
-								JSON.stringify(json) +
+								json +
 								" 이다. 이후, user로부터 일정 요청을 assistant가 받으면 이 일정을 수정하여 return한다.",
 						});
-						message =
-							message +
-							" system이 알려준 json data에 값을 넣어서 assistant는 json data 양식만 return해.";
 						sendQuestion(processJsonQueryData, message);
 						processJsonPost();
 						processJsonQueryData.pop();
@@ -460,62 +554,6 @@ async function localStoragePost(keyword, message) {
 	}
 }
 
-// user 메시지 입력받아 api 요청 보내는 함수
-const messagePost = async () => {
-	// makeAssistantRememberScheduel();
-	const result = await fetch(url, {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify(preprocessQueryData),
-		redirect: "follow",
-	})
-		.then((res) => res.json())
-		.then((res) => {
-			let content = res.choices[0].message.content;
-			console.log(content);
-
-			const keyword = keywordParser(content);
-			let message = content.replaceAll(keyword, "");
-			message = message.replaceAll(" beam_width:0 temperature:0", "").trim();
-			console.log("메세지: " + message);
-			// const msg = returnMessage(content);
-			// printAnswer(msg);
-			printAnswer(content);
-
-			switch (keyword) {
-				case "!수정": {
-					localStoragePost(keyword, message);
-					break;
-				}
-				case "!생성": {
-					console.log("생성 시작");
-					message =
-						message +
-						" system이 준 json data 양식에 따라 'title', 'start', 'end', 'note'의 key 값에 value를 추가한 json data만 return해.";
-					sendQuestion(processJsonQueryData, message);
-
-					processJsonPost();
-					processJsonQueryData.pop();
-					break;
-				}
-				case "!삭제": {
-					localStoragePost(keyword, message);
-					break;
-				}
-
-				default: {
-				}
-			}
-		})
-		.catch((err) => {
-			console.log(err);
-		});
-	preprocessQueryData.pop();
-	// makeAssistantRememberScheduel();
-};
-
 $inputForm.addEventListener("submit", (e) => {
 	e.preventDefault();
 	$chat.value = null;
@@ -546,7 +584,7 @@ $chatLog.addEventListener("click", (e) => {
 // ====================================================
 // 일정 수동 조작 부분
 
-let key; // 일정 수동 조작시 수정/삭제 조작을 위해 필요한 storage key 값
+let manualKey; // 일정 수동 조작시 수정/삭제 조작을 위해 필요한 storage key 값
 let editMenuClosed = true; // 일정 수정 메뉴를 위한 toggle
 
 // 할 일 목록 메뉴 영역 이벤트 지정
@@ -557,29 +595,28 @@ $contentsAreaMenuArea.addEventListener("click", (e) => {
 	$targetElement.classList.forEach((className) => {
 		// 일정 생성 popup form 열기
 		if (className == "open-form") {
-			openPopup(key);
+			openPopup(manualKey);
 		}
 		// 각 일정 수정 메뉴 visible toggle
 		else if (className == "edit-menu") {
-			const $editMenuContents = document.querySelectorAll("#edit-menu-content");
-			editMenuClosed = openMenu($editMenuContents, editMenuClosed);
+			editMenuClosed = openMenu(editMenuClosed);
 		}
 	});
 });
 
-function openPopup(key) {
+function openPopup(manualKey) {
 	const $popupContents = document
 		.getElementById("popup-container")
 		.getElementsByClassName("contents-container")
 		.item(0);
 
-	if (!key) {
+	if (!manualKey) {
 		document.getElementById("popup-title").innerHTML = "일정을 추가합니다.";
 	} else {
 		document.getElementById("popup-title").innerHTML = "일정을 수정합니다.";
 
 		// local storage에 저장된 값을 불러와 popup form에 채워넣기 시작
-		const json = JSON.parse(storage.getItem(key));
+		const json = JSON.parse(storage.getItem(manualKey));
 
 		let title = json["title"];
 		let start = jsonTimeParser(json["start"]);
@@ -616,7 +653,7 @@ function closePopup(eventTarget) {
 	document.getElementById("start").value = "";
 	document.getElementById("end").value = "";
 	document.getElementById("note").value = "";
-	key = null;
+	manualKey = null;
 }
 
 // 일정 수정/삭제
@@ -625,14 +662,15 @@ $editMenuContent.addEventListener("click", (e) => {
 	let targetElement;
 	if (e.target.id == "edit" || e.target.id == "delete") {
 		targetElement = e.target;
-		key = targetElement.children.item(0).innerHTML;
+		manualKey = targetElement.children.item(0).innerHTML;
 
 		if (targetElement.id == "edit") {
-			openPopup(key);
+			openPopup(manualKey);
 		} else if (targetElement.id == "delete") {
-			storage.removeItem(key);
+			storage.removeItem(manualKey);
 			createList();
-			key = null;
+			openMenu(true);
+			manualKey = null;
 		}
 	}
 });
@@ -644,11 +682,13 @@ $popupEventContainer.addEventListener("click", (e) => {
 		// 팝업 창 닫기
 		closePopup();
 	} else if (e.target.id == "popup-submit") {
-		submitPopupFormData(key);
+		submitPopupFormData(manualKey);
+		closePopup();
 	}
 });
 
-function submitPopupFormData(key) {
+// popup에 작성한 데이터 저장
+function submitPopupFormData(manualKey) {
 	const $title = document.getElementById("title").value;
 	const $start = datetimeParser(document.getElementById("start").value);
 	const $end = datetimeParser(document.getElementById("end").value);
@@ -656,10 +696,10 @@ function submitPopupFormData(key) {
 
 	const scheduleJson = makeScheduleJSON($title, $start, $end, $note);
 
-	if (!key) {
+	if (!manualKey) {
 		saveScheduleInStorage("", scheduleJson);
 	} else {
-		saveScheduleInStorage(key, scheduleJson);
+		saveScheduleInStorage(manualKey, scheduleJson);
 	}
 	createList();
 
@@ -667,17 +707,19 @@ function submitPopupFormData(key) {
 	document.getElementById("start").value = "";
 	document.getElementById("end").value = "";
 	document.getElementById("note").value = "";
+	manualKey = null;
 }
 
-function openMenu($menu, menuClosed) {
+function openMenu(menuClosed) {
+	const $editMenuContents = document.querySelectorAll("#edit-menu-content");
 	if (menuClosed) {
-		Array.prototype.forEach.call($menu, (content) => {
+		Array.prototype.forEach.call($editMenuContents, (content) => {
 			content.style.display = "flex";
 		});
 		menuClosed = !menuClosed;
 		return menuClosed;
 	} else {
-		Array.prototype.forEach.call($menu, (content) => {
+		Array.prototype.forEach.call($editMenuContents, (content) => {
 			content.style.display = "none";
 		});
 		menuClosed = !menuClosed;
@@ -724,6 +766,11 @@ function saveScheduleInStorage(_key, json) {
 	} else {
 		key = "json_" + Date.now();
 	}
+
+	if (json == typeof JSON) {
+		json = JSON.stringify(json);
+	}
+
 	storage.setItem(key, json);
 	key = null;
 }
