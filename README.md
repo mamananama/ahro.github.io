@@ -57,8 +57,7 @@ A Happy Routine Orgnaier : [AHRO](https://mamananama.github.io/ahro.github.io/)
 
 
 
-### 3. UI 이미지
-### 4. 구현 동작
+### 3. 구현 동작
 ---
 ### 대화형 처리
 ##### 대화형 처리 - 일정 생성
