@@ -414,12 +414,12 @@ const messagePost = async () => {
 					sendQuestion(processJsonQueryData, jsonCreateQuery);
 					processJsonPost();
 					processJsonQueryData.pop();
-					answeringPost(message);
+					answeringPost(keyword + " " + message);
 					break;
 				}
 				case "!삭제": {
 					localStoragePost(keyword, message);
-					answeringPost(message);
+					answeringPost(keyword + " " + message);
 					break;
 				}
 				case "!탐색": {
@@ -427,7 +427,7 @@ const messagePost = async () => {
 					break;
 				}
 				default: {
-					answeringPost(message);
+					answeringPost(keyword + " " + message);
 				}
 			}
 		})
@@ -482,6 +482,7 @@ const answeringPost = async (message) => {
 		.catch((err) => {
 			console.log(err);
 		});
+	answeringGPT.pop();
 };
 
 // storage 기억 GPT api 요청 보내는 함수
@@ -552,15 +553,17 @@ async function localStoragePost(keyword, message) {
 						});
 						findCtn++;
 					}
-					answeringGPT.push({
-						role: "system",
-						content:
-							"이후, user로부터 일정 탐색 요청을 assistant가 받으면 system으로부터 받은 일정들을 return한다.",
-					});
+					if (!keyJson) {
+						answeringGPT.push({
+							role: "system",
+							content:
+								"이후, user로부터 일정 탐색 요청을 assistant가 받으면 system으로부터 받은 일정들을 return한다.",
+						});
+						findCtn++;
+					}
 
 					// console.log("answering에 넣는: " + message);
-					answeringPost(message);
-					findCtn += 2;
+					answeringPost(keyword + " " + message);
 					break;
 				}
 				default: {
@@ -580,7 +583,7 @@ async function localStoragePost(keyword, message) {
 	}
 
 	while (findCtn > 0) {
-		answeringGPT.pop;
+		answeringGPT.pop();
 		findCtn--;
 	}
 }
