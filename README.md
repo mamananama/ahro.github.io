@@ -81,7 +81,8 @@ A Happy Routine Orgnaier : [AHRO](https://mamananama.github.io/ahro.github.io/)
 
 
 #### GPT 순서도
-![ahro diagram](https://github.com/mamananama/ahro.github.io/assets/114140050/ec12b293-7dae-4a0f-82ee-6f8e66da92dd)
+![ahro diagram](https://github.com/mamananama/ahro.github.io/assets/114140050/374cb193-2cb1-4c68-ad0d-e834212fa194)
+
 
 
 
