@@ -84,8 +84,43 @@ A Happy Routine Orgnaier : [AHRO](https://mamananama.github.io/ahro.github.io/)
 ![ahro diagram](https://github.com/mamananama/ahro.github.io/assets/114140050/a411f57a-14c1-46e3-a8f8-1ece7c223eab)
 
 
-
-
+* Keyword Parser GPT
+  * 최초로 들어온 사용자의 메시지를 분석하여, 메시지의 기능별로 '!생성', '!수정', '!삭제', '!탐색', '!일반'의 키워드를 메시지에 붙이는 역할을 합니다.
+  * 사용자의 메시지를 '{키워드} {사용자의 메시지}'문자열로 변경합니다.
+* Process JSON GPT
+  * 다른 GPT 요청으로부터 생성되어 전달된 메시지가 '!생성' 또는 '!수정' 키워드가 붙었을 경우 동작하는 GPT 요청입니다.
+  * '!생성' 키워드를 전달 받았을 경우, 사용자의 메시지에 따라 일정의 제목, 시작시간, 종료시간, 추가사항을 분석하여 JSON data를 생성하여 대답합니다.
+  * '!수정' 키워드를 전달 받았을 경우, 사용자의 메시지와 Storage GPT로부터 받은 수정 대상의 일정 data를 분석하여 JSON data를 생성하여 대답합니다.
+  * 생성되는 JSON data 양식은 다음과 같습니다
+    ```JSON
+    {
+      "title" : "일정의 제목",
+      "start" : "일정의 시작시간",
+      "end" : "일정의 종료시간",
+      "note" : "일정의 추가사항(메모/노트)",
+    }
+    ```
+ * Storage GPT
+   * Keyword Parser GPT를 통해 생성된 메시지가 '!수정', '!삭제', '!탐색'인 경우 동작하는 GPT 요청입니다.
+   * Storage GPT가 동작하면, local storage에 있는 모든 데이터를 assistant로 입력받습니다.
+   * 이후 입력 받은 메시지에 해당하는 일정을 찾아, 찾은 일정에 해당하는 local storage의 key들을 JSON data 형태로 대답합니다.
+   * 생성되는 JSON data의 예시는 다음과 같습니다. 
+     ```JSON
+     {
+       "item_0" : "찾은 일정의 key",
+       "item_1" : "찾은 일정의 key",
+       "item_2" : "찾은 일정의 key",
+       "item_3" : "찾은 일정의 key",
+        ...
+     }
+     ```
+  * Answer GPT
+    * 사용자에게 대화 피드백을 주는 역할을 하여, 사용자의 대화 내용을 처리했다는 것을 사용자가 인지할 수 있도록 하는 역할을 가지고 있습니다.
+    * 원하는 대답의 정확도를 올리기위해, 키워드와 메시지를 함께 받아 각 키워드별로 알맞은 대답을 할 수 있도록 prompt를 주었습니다.
+---
+* <strong>Q. 왜 GPT DATA를 하나로 처리하지 않았나요?  </strong>
+  * 하나의 GPT DATA로 처리했을 때, 위의 순서도 상의 4개의 GPT DATA로 분산되어 들어갔던 assistant로 주었던 prompt가 하나의 DATA로 들어가, 입력 순서가 오래된 assistant의 prompt의 weight가 낮아져 설정한 prompt대로 답변을 주지않는 문제가 발생했습니다.
+  * 이를 해결하기 위해, 각 기능별로 GPT DATA를 분산해서 prompt를 보냈고, 이후 담당별로 기능 수행의 정확도가 높아졌습니다.
 
 
 
